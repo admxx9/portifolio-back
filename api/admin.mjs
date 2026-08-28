@@ -6,7 +6,8 @@ const scrypt = promisify(scryptCallback);
 const databaseUrl = process.env.DATABASE_URL || process.env.STORAGE_URL;
 const pool = new Pool({ connectionString: databaseUrl, ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined });
 
-const json = (data, status = 200, headers = {}) => Response.json(data, { status, headers });
+const cors = { "Access-Control-Allow-Origin": "https://portifolio-front-omega.vercel.app", "Access-Control-Allow-Credentials": "true", "Access-Control-Allow-Headers": "content-type", "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS" };
+const json = (data, status = 200, headers = {}) => Response.json(data, { status, headers: { ...cors, ...headers } });
 const secret = () => process.env.SESSION_SECRET || "";
 const cookie = (name, value, maxAge = 0) => `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=${maxAge}`;
 
@@ -21,6 +22,7 @@ function userFrom(request) { const token = request.headers.get("cookie")?.match(
 async function body(request) { try { return await request.json(); } catch { return {}; } }
 
 export default async function handler(request) {
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (!databaseUrl || !secret()) return json({ error: "Servidor ainda não configurado." }, 503);
   await schema();
   const url = new URL(request.url); const action = url.searchParams.get("action") || "projects"; const user = userFrom(request);
