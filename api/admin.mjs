@@ -48,7 +48,7 @@ export default async function handler(request, response) {
   }
   if (action === "login" && request.method === "POST") { const data = await body(request); const username = (data.username || data.email || "").trim().toLowerCase(); const result = await pool.query("SELECT * FROM portfolio_users WHERE email=$1", [username]); if (!result.rows[0] || !(await matches(data.password || "", result.rows[0].password_hash))) return json(response, { error: "Usuário ou senha inválidos." }, 401); return json(response, { user: { id: result.rows[0].id, email: result.rows[0].email } }, 200, { "Set-Cookie": cookie("portfolio_session", session(result.rows[0]), 2592000) }); }
   if (action === "logout") return json(response, {}, 200, { "Set-Cookie": cookie("portfolio_session", "", 0) });
-  if (action === "me") return user ? json(response, { user }) : json(response, { user: null }, 401);
+  if (action === "me") return json(response, { user: user || null });
   if (!user) return json(response, { error: "Não autorizado." }, 401);
   if (action === "manage" && request.method === "GET") return json(response, (await pool.query("SELECT * FROM portfolio_projects ORDER BY position,id")).rows);
   const data = await body(request); const fields = [data.title?.trim(), data.page_url?.trim() || "", data.image_url?.trim() || "", data.description?.trim() || "", Number(data.position) || 0, data.published !== false];
