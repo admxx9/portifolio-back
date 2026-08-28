@@ -25,7 +25,7 @@ export default async function handler(request) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (!databaseUrl || !secret()) return json({ error: "Servidor ainda não configurado." }, 503);
   await schema();
-  const url = new URL(request.url); const action = url.searchParams.get("action") || "projects"; const user = userFrom(request);
+  const url = new URL(request.url, `https://${request.headers.get("host") || "localhost"}`); const action = url.searchParams.get("action") || "projects"; const user = userFrom(request);
   if (action === "projects" && request.method === "GET") return json((await pool.query("SELECT id,title,page_url,image_url,description,position,published FROM portfolio_projects WHERE published=true ORDER BY position,id")).rows);
   if (action === "setup" && request.method === "POST") {
     const data = await body(request); const count = await pool.query("SELECT count(*)::int AS count FROM portfolio_users");
