@@ -1,0 +1,29 @@
+{
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "api": "node backend/src/server.mjs",
+    "db:migrate": "node backend/src/migrate.mjs",
+    "test:smoke": "node backend/test/smoke.mjs",
+    "build": "tsc && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "generate:stitch": "node scripts/generate-stitch-screens.mjs"
+  },
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "pg": "^8.23.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^5.0.4",
+    "parse5": "^8.0.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
+  }
+}
