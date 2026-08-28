@@ -3,7 +3,8 @@ import { createHmac, randomBytes, scrypt as scryptCallback, timingSafeEqual } fr
 import { promisify } from "node:util";
 
 const scrypt = promisify(scryptCallback);
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined });
+const databaseUrl = process.env.DATABASE_URL || process.env.STORAGE_URL;
+const pool = new Pool({ connectionString: databaseUrl, ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined });
 
 const json = (data, status = 200, headers = {}) => Response.json(data, { status, headers });
 const secret = () => process.env.SESSION_SECRET || "";
@@ -20,7 +21,7 @@ function userFrom(request) { const token = request.headers.get("cookie")?.match(
 async function body(request) { try { return await request.json(); } catch { return {}; } }
 
 export default async function handler(request) {
-  if (!process.env.DATABASE_URL || !secret()) return json({ error: "Servidor ainda não configurado." }, 503);
+  if (!databaseUrl || !secret()) return json({ error: "Servidor ainda não configurado." }, 503);
   await schema();
   const url = new URL(request.url); const action = url.searchParams.get("action") || "projects"; const user = userFrom(request);
   if (action === "projects" && request.method === "GET") return json((await pool.query("SELECT id,title,page_url,image_url,description,position,published FROM portfolio_projects WHERE published=true ORDER BY position,id")).rows);
